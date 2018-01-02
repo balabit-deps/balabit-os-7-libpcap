@@ -1,0 +1,5 @@
+usr/bin
+usr/include/pcap*
+usr/lib/*/libpcap.a
+usr/lib/*/libpcap.so
+usr/share/man

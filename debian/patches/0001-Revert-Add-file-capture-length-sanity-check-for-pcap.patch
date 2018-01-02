@@ -1,0 +1,33 @@
+From 703ffeb9d7e56922e6fb62422d67cde3f7458b9e Mon Sep 17 00:00:00 2001
+From: Iain Lane <iain@orangesquash.org.uk>
+Date: Tue, 29 Nov 2016 13:56:12 +0000
+Subject: [PATCH] Revert "Add file capture length sanity check for pcap
+ savefiles"
+
+This reverts commit d81eb812e679d3f2b4f025cc729b415203889377.
+---
+ sf-pcap.c | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/sf-pcap.c b/sf-pcap.c
+index ac305d4..f26326e 100644
+--- a/sf-pcap.c
++++ b/sf-pcap.c
+@@ -232,14 +232,6 @@ pcap_check_header(bpf_u_int32 magic, FILE *fp, u_int precision, char *errbuf,
+ 		return NULL;
+ 	}
+ 
+-	if (hdr.snaplen > MAXIMUM_SNAPLEN) {
+-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+-			 "invalid file capture length %u, bigger than "
+-			 "maximum of %u", hdr.snaplen, MAXIMUM_SNAPLEN);
+-		*err = 1;
+-		return NULL;
+-	}
+-
+ 	/*
+ 	 * OK, this is a good pcap file.
+ 	 * Allocate a pcap_t for it.
+-- 
+2.10.2
+
