@@ -1,3 +1,14 @@
+libpcap (1.8.1-6ubuntu1.18.04.1) bionic-security; urgency=medium
+
+  * SECURITY UPDATE: pcapng reading buffer over-read.
+    - debian/patches/CVE-2019-15165-1.patch: do sanity checks on PHB
+      header length before allocating memory.
+    - debian/patches/CVE-2019-15165-2.patch: fix introduced format
+      warning
+    - CVE-2019-15165
+
+ -- Steve Beattie <sbeattie@ubuntu.com>  Thu, 21 Nov 2019 16:52:20 -0800
+
 libpcap (1.8.1-6ubuntu1) bionic; urgency=low
 
   * Merge from Debian unstable.  Remaining changes:

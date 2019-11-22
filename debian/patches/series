@@ -9,3 +9,5 @@ disable-remote.diff
 man-errors.diff
 pcap-config.diff
 0001-Revert-Add-file-capture-length-sanity-check-for-pcap.patch
+CVE-2019-15165-1.patch
+CVE-2019-15165-2.patch
