@@ -11,3 +11,6 @@ pcap-config.diff
 0001-Revert-Add-file-capture-length-sanity-check-for-pcap.patch
 CVE-2019-15165-1.patch
 CVE-2019-15165-2.patch
+set-package-name-with-ac-init.patch
+use-m4-macro-to-get-version.patch
+install-pkg-config-file.patch

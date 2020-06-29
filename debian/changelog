@@ -1,3 +1,20 @@
+libpcap (1.8.1-6ubuntu1.18.04.2) bionic; urgency=medium
+
+  * Install pkg-config file for libpcap (LP: #1865501).
+    - d/p/set-package-name-with-ac-init.patch: Set the PACKAGE_NAME
+      variable using autoconf's AC_INIT macro, so that we can use it
+      in the libpcap.pc.in file.
+    - d/p/use-m4-macro-to-get-version.patch: Use an M4 macro to
+      execute a "cat" command and obtain the version from the VERSION
+      file.
+    - d/p/install-pkg-config-file.patch: New patch from upstream,
+      which creates a libpcap.pc.in file and adjusts the Makefile to
+      install it.
+    - d/libpcap0.8-dev.install: Install libpcap.pc pkg-config file.
+      Thanks to Luca Boccassi for the Debian patch (Closes #922219).
+
+ -- Sergio Durigan Junior <sergio.durigan@canonical.com>  Mon, 29 Jun 2020 17:49:04 -0400
+
 libpcap (1.8.1-6ubuntu1.18.04.1) bionic-security; urgency=medium
 
   * SECURITY UPDATE: pcapng reading buffer over-read.

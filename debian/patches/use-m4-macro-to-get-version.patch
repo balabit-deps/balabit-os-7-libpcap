@@ -1,0 +1,27 @@
+From: Ali Abdulkadir <autostart.ini@gmail.com>
+Date: Wed, 4 Oct 2017 04:08:18 +0300
+Subject: Use a m4 macro to get version string from file
+
+Author: Ali Abdulkadir <autostart.ini@gmail.com>
+Origin: backport, https://github.com/the-tcpdump-group/libpcap/commit/263e6ca61e072cd8abe82b58e6b3f6539c2cdaaa
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/libpcap/+bug/1865501
+Reviewed-By: Sergio Durigan Junior <sergio.durigan@canonical.com>
+Last-Update: 2020-06-29
+---
+ configure.ac | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 9952e04..febdb69 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -15,7 +15,8 @@ dnl
+ #
+ 
+ AC_PREREQ(2.61)
+-AC_INIT(pcap, 1.8.1)
++
++AC_INIT(pcap, m4_esyscmd_s([cat VERSION]))
+ AC_SUBST(PACKAGE_NAME)
+ 
+ AC_CANONICAL_SYSTEM

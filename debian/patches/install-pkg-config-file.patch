@@ -1,0 +1,137 @@
+From: Guy Harris <guy@alum.mit.edu>
+Date: Wed, 25 Apr 2018 17:22:45 -0700
+Subject: Add a pkg-config .pc file for libpcap.
+
+Addresses GitHub issue #374.
+
+Author: Guy Harris <guy@alum.mit.edu>
+Origin: backport, https://github.com/the-tcpdump-group/libpcap/commit/a7deb6a241f8c71ca261adc45ac07c8427074792
+Bug: https://github.com/the-tcpdump-group/libpcap/issues/374
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/libpcap/+bug/1865501
+Reviewed-By: Sergio Durigan Junior <sergio.durigan@canonical.com>
+Last-Update: 2020-06-29
+---
+ Makefile.in   | 28 +++++++++++++++++++++-------
+ libpcap.pc.in | 18 ++++++++++++++++++
+ 2 files changed, 39 insertions(+), 7 deletions(-)
+ create mode 100644 libpcap.pc.in
+
+diff --git a/Makefile.in b/Makefile.in
+index d8562f1..44b9274 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -171,7 +171,7 @@ TAGFILES = \
+ 
+ CLEANFILES = $(OBJ) libpcap.* $(TESTS) \
+ 	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENSRC) $(GENHDR) \
+-	lex.yy.c pcap-config $(OBJ_PIC)
++	lex.yy.c pcap-config libpcap.pc $(OBJ_PIC)
+ 
+ MAN1 = pcap-config.1
+ 
+@@ -300,6 +300,7 @@ EXTRA_DIST = \
+ 	lbl/os-solaris2.h \
+ 	lbl/os-sunos4.h \
+ 	lbl/os-ultrix4.h \
++	libpcap.pc.in \
+ 	missing/getopt.c \
+ 	missing/getopt.h \
+ 	missing/snprintf.c \
+@@ -372,7 +373,7 @@ EXTRA_DIST = \
+ 	Win32/Prj/wpcap.vcxproj \
+ 	Win32/Prj/wpcap.vcxproj.filters
+ 
+-all: libpcap.a shared pcap-config
++all: libpcap.a shared libpcap.pc pcap-config
+ 
+ libpcap.a: $(OBJ)
+ 	@rm -f $@
+@@ -536,7 +537,7 @@ bpf_filter_pic.o: bpf_filter.c
+ 	$(CC) -fPIC $(FULL_CFLAGS) -c bpf_filter.c -o $@
+ 
+ #
+-# Generate the pcap-config script.
++# Generate the libpcap.pc file.
+ #
+ # Some Makes, e.g. AIX Make and Solaris Make, can't handle "--file=$@.tmp:$<";
+ # for example, the Solaris 9 make man page says
+@@ -547,7 +548,16 @@ bpf_filter_pic.o: bpf_filter.c
+ #
+ # and this is an explicit target entry.
+ #
+-# Therefore, instead of using $<, we explicitly put in $(srcdir)/pcap-config.in.
++# Therefore, instead of using $<, we explicitly put in $(srcdir)/libpcap.pc.in.
++#
++libpcap.pc: $(srcdir)/libpcap.pc.in ./config.status
++	@rm -f $@ $@.tmp
++	./config.status --file=$@.tmp:$(srcdir)/libpcap.pc.in
++	mv $@.tmp $@
++	chmod a+x $@
++
++#
++# Generate the pcap-config script.  See above.
+ #
+ pcap-config: $(srcdir)/pcap-config.in ./config.status
+ 	@rm -f $@ $@.tmp
+@@ -584,7 +594,7 @@ selpolltest: tests/selpolltest.c libpcap.a
+ valgrindtest: tests/valgrindtest.c libpcap.a
+ 	$(CC) $(FULL_CFLAGS) -I. -L. -o valgrindtest $(srcdir)/tests/valgrindtest.c libpcap.a $(LIBS)
+ 
+-install: install-shared install-archive pcap-config
++install: install-shared install-archive libpcap.pc pcap-config
+ 	[ -d $(DESTDIR)$(libdir) ] || \
+ 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
+ 	[ -d $(DESTDIR)$(includedir) ] || \
+@@ -605,6 +615,9 @@ install: install-shared install-archive pcap-config
+ 	[ -d $(DESTDIR)$(bindir) ] || \
+ 	    (mkdir -p $(DESTDIR)$(bindir); chmod 755 $(DESTDIR)$(bindir))
+ 	$(INSTALL_PROGRAM) pcap-config $(DESTDIR)$(bindir)/pcap-config
++	[ -d $(DESTDIR)$(libdir)/pkgconfig ] || \
++	    (mkdir -p $(DESTDIR)$(libdir)/pkgconfig; chmod 755 $(DESTDIR)$(libdir)/pkgconfig)
++	$(INSTALL_DATA) libpcap.pc $(DESTDIR)$(libdir)/pkgconfig/libpcap.pc
+ 	for i in $(MAN1); do \
+ 		$(INSTALL_DATA) $(srcdir)/$$i \
+ 		    $(DESTDIR)$(mandir)/man1/$$i; done
+@@ -708,6 +721,7 @@ uninstall: uninstall-shared
+ 	for i in $(PUBHDR); do \
+ 		rm -f $(DESTDIR)$(includedir)/$$i; done
+ 	-rmdir $(DESTDIR)$(includedir)/pcap
++	rm -f $(DESTDIR)/$(libdir)/pkgconfig/libpcap.pc
+ 	rm -f $(DESTDIR)/$(bindir)/pcap-config
+ 	for i in $(MAN1); do \
+ 		rm -f $(DESTDIR)$(mandir)/man1/$$i; done
+@@ -760,8 +774,8 @@ clean:
+ 
+ distclean: clean
+ 	rm -f Makefile config.cache config.log config.status \
+-	    config.h gnuc.h net os-proto.h bpf_filter.c pcap-config \
+-	    stamp-h stamp-h.in
++	    config.h gnuc.h net os-proto.h bpf_filter.c libpcap.pc \
++	    pcap-config stamp-h stamp-h.in
+ 	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
+ 	rm -rf autom4te.cache
+ 
+diff --git a/libpcap.pc.in b/libpcap.pc.in
+new file mode 100644
+index 0000000..d74cbc5
+--- /dev/null
++++ b/libpcap.pc.in
+@@ -0,0 +1,18 @@
++#
++# pkg-config file for libpcap.
++#
++# These variables come from the configure script, so includedir and
++# libdir may be defined in terms of prefix and exec_prefix, so the
++# latter must be defined as well.
++#
++prefix="@prefix@"
++exec_prefix="@exec_prefix@"
++includedir="@includedir@"
++libdir="@libdir@"
++
++Name: libpcap
++Description: Platform-independent network traffic capture library
++Version: @PACKAGE_VERSION@
++Libs: -L${libdir} -l@PACKAGE_NAME@
++Libs.private: @LIBS@
++Cflags: -I${includedir}
